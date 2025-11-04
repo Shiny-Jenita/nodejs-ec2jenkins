@@ -4,14 +4,14 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo "🏗️ Building Node.js app..."
+                echo "Building Node.js app..."
                 sh 'node --version'
             }
         }
 
         stage('Test') {
             steps {
-                echo "🧪 Running tests..."
+                echo " Running tests..."
                 sh 'echo "All tests passed!"'
             }
         }
