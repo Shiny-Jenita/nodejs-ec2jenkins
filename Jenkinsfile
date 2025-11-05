@@ -17,7 +17,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                echo "🔄 Checking out code..."
+                echo "Checking out code..."
                 checkout scm
             }
         }
@@ -59,7 +59,7 @@ pipeline {
                         aws s3 mb s3://${S3_BUCKET} --region ${AWS_REGION}
                     fi
 
-                    echo "☁️ Uploading build output..."
+                    echo " Uploading build output..."
                     aws s3 cp ${BUILD_OUTPUT} s3://${S3_BUCKET}/${JOB_NAME}/${BUILD_NUMBER}/ --recursive --region ${AWS_REGION}
                 """
             }
@@ -67,7 +67,7 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo "🚀 Simulated deployment step..."
+                echo "Simulated deployment step..."
                 sh 'echo "Simulated deployment complete."'
             }
         }
@@ -75,14 +75,14 @@ pipeline {
 
     post {
         always {
-            echo "🧹 Cleaning up workspace..."
+            echo "Cleaning up workspace..."
             cleanWs()
         }
         success {
-            echo "✅ ${PROJECT_NAME} completed successfully and uploaded to S3!"
+            echo "${PROJECT_NAME} completed successfully and uploaded to S3!"
         }
         failure {
-            echo "❌ ${PROJECT_NAME} failed!"
+            echo "${PROJECT_NAME} failed!"
         }
     }
 }
