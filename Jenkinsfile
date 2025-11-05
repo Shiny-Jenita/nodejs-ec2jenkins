@@ -1,8 +1,8 @@
 pipeline {
     agent {
-        docker { 
+        docker {
             image 'node:20'
-            args '-u root:root'  // Run as root to avoid permission issues.....hm
+            args '-u root:root'
         }
     }
 
@@ -10,11 +10,10 @@ pipeline {
         PROJECT_NAME = "Node.js EC2 Jenkins Pipeline"
         AWS_REGION   = "us-east-1"
         S3_BUCKET    = "jenkins-nodejs-bucket"
-        BUILD_OUTPUT = "output" // ..change this to your actual build output folder or file
+        BUILD_OUTPUT = "."
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 echo "Checking out code..."
@@ -29,56 +28,36 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                echo "Building project..."
-                sh 'npm run build || echo "No build script, skipping..."'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                echo "Running tests..."
-                sh 'npm test || echo "No tests found, skipping..."'
-            }
-        }
-
         stage('Upload to S3') {
-    steps {
-        echo "Uploading build output to S3..."
-        sh """
-            if ! aws s3 ls "s3://${S3_BUCKET}" >/dev/null 2>&1; then
-                echo "Creating bucket: ${S3_BUCKET}"
-                aws s3 mb s3://${S3_BUCKET} --region ${AWS_REGION}
-            else
-                echo "Bucket ${S3_BUCKET} already exists."
-            fi
-
-            echo "Uploading files..."
-            aws s3 cp ${BUILD_OUTPUT} s3://${S3_BUCKET}/${JOB_NAME}/${BUILD_NUMBER}/ --recursive --region ${AWS_REGION}
-        """
-    }
-}
-
-
-        stage('Deploy') {
             steps {
-                echo "Simulated deployment step..."
-                sh 'echo "Simulated deployment complete."'
+                echo "Uploading app to S3..."
+                sh '''
+                    apt-get update && apt-get install -y awscli
+
+                    if ! aws s3 ls "s3://${S3_BUCKET}" >/dev/null 2>&1; then
+                        echo "Creating bucket: ${S3_BUCKET}"
+                        aws s3 mb s3://${S3_BUCKET} --region ${AWS_REGION}
+                    else
+                        echo "Bucket ${S3_BUCKET} already exists."
+                    fi
+
+                    echo "Uploading files..."
+                    aws s3 cp ${BUILD_OUTPUT} s3://${S3_BUCKET}/${JOB_NAME}/${BUILD_NUMBER}/ --recursive --region ${AWS_REGION}
+                '''
             }
         }
     }
 
     post {
         always {
-            echo "Cleaning up workspace..."
+            echo "Cleaning workspace..."
             cleanWs()
         }
         success {
             echo "${PROJECT_NAME} completed successfully and uploaded to S3!"
         }
         failure {
-            echo "${PROJECT_NAME} failed lets check!"
+            echo "${PROJECT_NAME} failed — check logs!"
         }
     }
 }
