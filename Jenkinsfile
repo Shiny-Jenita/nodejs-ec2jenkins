@@ -24,28 +24,28 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                echo "📦 Installing npm dependencies..."
+                echo "Installing npm dependencies..."
                 sh 'npm install'
             }
         }
 
         stage('Build') {
             steps {
-                echo "🏗️ Building project..."
+                echo "Building project..."
                 sh 'npm run build || echo "No build script, skipping..."'
             }
         }
 
         stage('Test') {
             steps {
-                echo "🧪 Running tests..."
+                echo "Running tests..."
                 sh 'npm test || echo "No tests found, skipping..."'
             }
         }
 
         stage('Upload to S3') {
             steps {
-                echo "📤 Uploading build output to S3..."
+                echo "Uploading build output to S3..."
 
                 // Ensure AWS CLI is available
                 sh 'apt-get update && apt-get install -y awscli'
@@ -53,9 +53,9 @@ pipeline {
                 // Create bucket if it doesn't exist, then upload
                 sh """
                     if ! aws s3 ls "s3://${S3_BUCKET}" 2>&1 | grep -q 'NoSuchBucket'; then
-                        echo "✅ Bucket ${S3_BUCKET} already exists."
+                        echo "Bucket ${S3_BUCKET} already exists."
                     else
-                        echo "🪣 Creating bucket: ${S3_BUCKET}"
+                        echo "Creating bucket: ${S3_BUCKET}"
                         aws s3 mb s3://${S3_BUCKET} --region ${AWS_REGION}
                     fi
 
