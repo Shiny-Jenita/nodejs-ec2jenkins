@@ -82,7 +82,7 @@ pipeline {
             echo "${PROJECT_NAME} completed successfully and uploaded to S3!"
         }
         failure {
-            echo "${PROJECT_NAME} failed!"
+            echo "${PROJECT_NAME} failed lets check!"
         }
     }
 }
