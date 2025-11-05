@@ -10,7 +10,7 @@ pipeline {
         PROJECT_NAME = "Node.js EC2 Jenkins Pipeline"
         AWS_REGION   = "us-east-1"
         S3_BUCKET    = "jenkins-nodejs-bucket"
-        BUILD_OUTPUT = "output" // change this to your actual build output folder or file
+        BUILD_OUTPUT = "output" // ..change this to your actual build output folder or file
     }
 
     stages {
