@@ -44,26 +44,22 @@ pipeline {
         }
 
         stage('Upload to S3') {
-            steps {
-                echo "Uploading build output to S3..."
+    steps {
+        echo "Uploading build output to S3..."
+        sh """
+            if ! aws s3 ls "s3://${S3_BUCKET}" >/dev/null 2>&1; then
+                echo "Creating bucket: ${S3_BUCKET}"
+                aws s3 mb s3://${S3_BUCKET} --region ${AWS_REGION}
+            else
+                echo "Bucket ${S3_BUCKET} already exists."
+            fi
 
-                // Ensure AWS CLI is available
-                sh 'apt-get update && apt-get install -y awscli'
+            echo "Uploading files..."
+            aws s3 cp ${BUILD_OUTPUT} s3://${S3_BUCKET}/${JOB_NAME}/${BUILD_NUMBER}/ --recursive --region ${AWS_REGION}
+        """
+    }
+}
 
-                // Create bucket if it doesn't exist, then upload
-                sh """
-                    if ! aws s3 ls "s3://${S3_BUCKET}" 2>&1 | grep -q 'NoSuchBucket'; then
-                        echo "Bucket ${S3_BUCKET} already exists."
-                    else
-                        echo "Creating bucket: ${S3_BUCKET}"
-                        aws s3 mb s3://${S3_BUCKET} --region ${AWS_REGION}
-                    fi
-
-                    echo " Uploading build output..."
-                    aws s3 cp ${BUILD_OUTPUT} s3://${S3_BUCKET}/${JOB_NAME}/${BUILD_NUMBER}/ --recursive --region ${AWS_REGION}
-                """
-            }
-        }
 
         stage('Deploy') {
             steps {
